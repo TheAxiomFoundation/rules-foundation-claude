@@ -1,11 +1,11 @@
 ---
-description: "Encode a statute into RAC format with full multi-agent workflow"
+description: "Encode a source citation or source slice into Axiom RuleSpec YAML"
 argument-hint: "<citation> (e.g., '26 USC 1', '26 USC 32(c)(2)(A)')"
 ---
 
-# Encode Statute
+# Encode Source
 
-Runs the autorac encoding pipeline (self-contained, no plugin agents).
+Runs the Axiom Encode pipeline and emits RuleSpec YAML.
 
 ## Usage
 
@@ -17,15 +17,16 @@ Runs the autorac encoding pipeline (self-contained, no plugin agents).
 
 ## What Happens
 
-The autorac CLI runs the full pipeline:
+The command should:
 
-1. **Encoding** - Claude encodes subsections into .rac files
-2. **Oracles** - Validates against PolicyEngine and TAXSIM
-3. **Review** - 4 LLM reviewers run checklists in parallel
-4. **Logging** - Records to autorac experiment DB
+1. Resolve the cited source text from the source registry or an official source.
+2. Generate a `format: rulespec/v1` YAML artifact.
+3. Validate with `axiom-encode validate`.
+4. Report the output path and validation result.
 
 ## Invoke
 
 ```bash
-cd ~/RulesFoundation/autorac && source .venv/bin/activate && autorac encode "$ARGUMENTS"
+cd ~/TheAxiomFoundation/axiom-encode
+uv run axiom-encode encode "$ARGUMENTS" --output /tmp/axiom-encode-encodings
 ```

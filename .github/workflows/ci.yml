@@ -11,7 +11,7 @@ jobs:
     name: Validate plugin structure
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Check required plugin files exist
         run: |
@@ -21,16 +21,6 @@ jobs:
           for f in .claude-plugin/plugin.json .claude-plugin/marketplace.json; do
             if [ ! -f "$f" ]; then
               echo "::error::Missing required file: $f"
-              errors=$((errors + 1))
-            else
-              echo "OK: $f"
-            fi
-          done
-
-          # Hook scripts referenced in plugin.json
-          for f in hooks/session-start.sh hooks/log-subagent-transcript.py hooks/log-encoding-events.py hooks/session-end.sh; do
-            if [ ! -f "$f" ]; then
-              echo "::error::Missing hook script referenced in plugin.json: $f"
               errors=$((errors + 1))
             else
               echo "OK: $f"
@@ -116,39 +106,14 @@ jobs:
           fi
           echo "All markdown frontmatter valid."
 
-      - name: Check hook scripts referenced in plugin.json are executable
+      - name: Check no legacy terms are present
         run: |
-          errors=0
-          # Extract script paths from plugin.json command fields
-          scripts=$(python3 -c "
-          import json
-          with open('.claude-plugin/plugin.json') as f:
-              data = json.load(f)
-          seen = set()
-          for hook_list in data.get('hooks', {}).values():
-              for entry in hook_list:
-                  for hook in entry.get('hooks', []):
-                      cmd = hook.get('command', '')
-                      cmd = cmd.replace('\${CLAUDE_PLUGIN_ROOT}', '.')
-                      if cmd not in seen:
-                          seen.add(cmd)
-                          print(cmd)
-          ")
-
-          for f in $scripts; do
-            if [ ! -f "$f" ]; then
-              echo "::error::Hook script not found: $f"
-              errors=$((errors + 1))
-            elif [ ! -x "$f" ]; then
-              echo "::error file=$f::Hook script is not executable"
-              errors=$((errors + 1))
-            else
-              echo "OK: $f is executable"
-            fi
-          done
-
-          if [ "$errors" -gt 0 ]; then
-            echo "::error::$errors hook script issue(s)"
+          legacy_ext="r""ac"
+          source_initials="A""K""N"
+          source_name="Ako""ma"
+          if find . -path './.git' -prune -o -type f -print \
+            | xargs grep -InE "\\b${legacy_ext}\\b|\\b${legacy_ext^^}\\b|\\.${legacy_ext}\\b|auto${legacy_ext}|${source_name}|\\b${source_initials}\\b|\\.${source_initials,,}\\b"; then
+            echo "::error::Legacy syntax or source-format term found"
             exit 1
           fi
-          echo "All referenced hook scripts are executable."
+          echo "No legacy terms found."

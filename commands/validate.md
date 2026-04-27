@@ -1,46 +1,35 @@
 ---
 description: "Validate encoded policy against multiple tax/benefit systems"
-argument-hint: "<citation or path> (e.g., '26 USC 32', 'rac-us/statute/26/32/tests.yaml')"
+argument-hint: "<RuleSpec YAML path>"
 ---
 
 # Validate Policy Command
 
-Validate encoded policies against PolicyEngine and TAXSIM.
+Validate an Axiom RuleSpec YAML artifact.
 
 ## Arguments
-- `$ARGUMENTS` - Citation or path to test cases
+- `$ARGUMENTS` - Path to a RuleSpec YAML file
 
 ## Workflow
 
 ### 1. Run validation
 
 ```bash
-cd ~/RulesFoundation/rac-validators
-source .venv/bin/activate
-
-python -c "
-from rac_validators.cps.runner import CPSValidationRunner
-runner = CPSValidationRunner(year=2024)
-results = runner.run()
-for name, result in results.items():
-    if result.pe_comparison:
-        print(f'{name}: {result.pe_comparison.match_rate:.1%} match')
-"
+cd ~/TheAxiomFoundation/axiom-encode
+uv run axiom-encode validate "$ARGUMENTS"
 ```
 
 ### 2. Interpret results
 
 **Consensus Levels:**
-- `FULL_AGREEMENT` - All validators agree (best case)
-- `MAJORITY_AGREEMENT` - >50% agree
-- `DISAGREEMENT` - No consensus (investigate)
-- `POTENTIAL_UPSTREAM_BUG` - High confidence but validators disagree
+- Compile pass means the YAML shape and imports are accepted by Axiom Rules.
+- CI pass means local RuleSpec tests and grounding checks pass.
+- Oracle pass means an external model, when configured, agrees on comparable cases.
 
 ### 3. Report findings
 
 Summarize:
 - Total tests run
 - Pass/fail rate
-- Consensus levels achieved
 - Potential upstream bugs detected
 - Recommended actions

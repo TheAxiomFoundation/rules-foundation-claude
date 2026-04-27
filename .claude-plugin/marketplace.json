@@ -8,7 +8,7 @@
     {
       "name": "rules-foundation",
       "source": "./",
-      "description": "RAC encoding, atlas legal archive, and development tools",
+      "description": "Axiom RuleSpec authoring, source registry guidance, and development tools",
       "version": "0.4.0"
     }
   ]

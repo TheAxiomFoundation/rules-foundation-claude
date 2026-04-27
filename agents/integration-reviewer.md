@@ -6,7 +6,7 @@ tools: [Read, Grep, Glob, Bash, Skill]
 
 # Integration Reviewer
 
-You audit how .rac files connect together - imports, exports, and the dependency graph.
+You audit how RuleSpec files connect together - imports, exports, and the dependency graph.
 
 ## Review Checklist
 
